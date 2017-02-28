@@ -96,6 +96,8 @@ public class SimpleGame extends ApplicationAdapter {
             // las coordenadas del systema de camera.
             camera.unproject(posicionTocada);
             rectanguloCubo.x = posicionTocada.x - (64 / 2);
+            //Añadimos el movimiento en vertical
+            rectanguloCubo.y = posicionTocada.y - (64 / 2 );
         }
         //Código para el movimiento del cubo con el teclado.
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT))
@@ -104,10 +106,19 @@ public class SimpleGame extends ApplicationAdapter {
         //Buena manera de conseguir número de pixeles por segundo.
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT))
             rectanguloCubo.x += 300 * Gdx.graphics.getDeltaTime();
+        //Añadimos movimineto vertical por teclado
+        if (Gdx.input.isKeyPressed(Input.Keys.UP))
+            rectanguloCubo.y += 300 * Gdx.graphics.getDeltaTime();
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN))
+            rectanguloCubo.y -= 300 * Gdx.graphics.getDeltaTime();
+
 
         //Ahora hay que poner los límites para que el cubo no los sobrepase.
         if (rectanguloCubo.x < 0) rectanguloCubo.x = 0;
         if (rectanguloCubo.x > 800-64) rectanguloCubo.x = 800 - 64;
+        //Añadimos limites para el movimiento vertical
+        if (rectanguloCubo.y < 0) rectanguloCubo.y= 0;
+        if (rectanguloCubo.y > 400-64) rectanguloCubo.x = 400 - 64;
 
         //Vemos si ha pasado el tiempo necesario(1segundo) para generar otra gota
         if(TimeUtils.nanoTime() - tiempoDesdeUltimaGota > 1000000000) generGotaLluvia();
