@@ -8,6 +8,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
@@ -27,6 +28,9 @@ public class SimpleGame extends ApplicationAdapter {
     private Rectangle rectanguloCubo; //Almacenamiento de posición y tamaño.
     private Array<Rectangle> rectangulosGotasLluvia;//Almacena los rectangulos de cada una de las gotas generadas.
     private long tiempoDesdeUltimaGota;
+    private int marcador;
+    private String textoMarcador;
+    private BitmapFont tipoLetraMarcador;
 
     @Override
     public void create() {
@@ -59,6 +63,11 @@ public class SimpleGame extends ApplicationAdapter {
         //Instanciamos el array rectangulosGotasLluvia
         rectangulosGotasLluvia = new Array<Rectangle>();
         generGotaLluvia();
+
+        //Inicializamos el marcador
+        marcador = 0;
+        textoMarcador = "Marcador: 0";
+        tipoLetraMarcador = new BitmapFont();
     }
 
     @Override
@@ -73,12 +82,14 @@ public class SimpleGame extends ApplicationAdapter {
         //Asignamos la matriz de proyección al batch
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
+        //Añadimos el marcador
+        tipoLetraMarcador.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+        tipoLetraMarcador.draw(batch, textoMarcador, 10, 450);
         batch.draw(cuboImagen, rectanguloCubo.x, rectanguloCubo.y);
-        for(Rectangle rectanguloGota: rectangulosGotasLluvia) {
+        for (Rectangle rectanguloGota : rectangulosGotasLluvia) {
             batch.draw(gotaImagen, rectanguloGota.x, rectanguloGota.y);
         }
         batch.end();
-
 
 
         if (Gdx.input.isTouched()) {
@@ -97,7 +108,7 @@ public class SimpleGame extends ApplicationAdapter {
             camera.unproject(posicionTocada);
             rectanguloCubo.x = posicionTocada.x - (64 / 2);
             //Añadimos el movimiento en vertical
-            rectanguloCubo.y = posicionTocada.y - (64 / 2 );
+            rectanguloCubo.y = posicionTocada.y - (64 / 2);
         }
         //Código para el movimiento del cubo con el teclado.
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT))
@@ -115,25 +126,33 @@ public class SimpleGame extends ApplicationAdapter {
 
         //Ahora hay que poner los límites para que el cubo no los sobrepase.
         if (rectanguloCubo.x < 0) rectanguloCubo.x = 0;
-        if (rectanguloCubo.x > 800-64) rectanguloCubo.x = 800 - 64;
+        if (rectanguloCubo.x > 800 - 64) rectanguloCubo.x = 800 - 64;
         //Añadimos limites para el movimiento vertical
-        if (rectanguloCubo.y < 0) rectanguloCubo.y= 0;
-        if (rectanguloCubo.y > 400-64) rectanguloCubo.x = 400 - 64;
+        if (rectanguloCubo.y < 0) rectanguloCubo.y = 0;
+        if (rectanguloCubo.y > 400 - 64) rectanguloCubo.x = 400 - 64;
 
         //Vemos si ha pasado el tiempo necesario(1segundo) para generar otra gota
-        if(TimeUtils.nanoTime() - tiempoDesdeUltimaGota > 1000000000) generGotaLluvia();
+        if (TimeUtils.nanoTime() - tiempoDesdeUltimaGota > 1000000000) generGotaLluvia();
 
         //Tenemos que mover las gotas a 20pixels por segundo. Las gotas las tenemos almacenadas
         //en el array. Movemos cada una de las gotas.
         Iterator<Rectangle> iter = rectangulosGotasLluvia.iterator();
-        while(iter.hasNext()){
+        while (iter.hasNext()) {
             Rectangle rectanguloGotaLluvia = iter.next();
             rectanguloGotaLluvia.y -= 200 * Gdx.graphics.getDeltaTime();
             //Cuando la gota desaparece por abajo la borramos.
-            if(rectanguloGotaLluvia.y + 64 <0) iter.remove();
+            if (rectanguloGotaLluvia.y + 64 < 0) {
+                iter.remove();
+                if (marcador > 0) {
+                    marcador--;
+                    textoMarcador = "Marcador: " + marcador;
+                }
+            }
             //Hay que poner un sonido a cuando la gota choca con el cubo y borrar la gota
             //Lo que comprobamos es si los rectangulos se superponen
-            if(rectanguloGotaLluvia.overlaps(rectanguloCubo)){
+            if (rectanguloGotaLluvia.overlaps(rectanguloCubo)) {
+                marcador++;
+                textoMarcador = "Marcador: " + marcador;
                 gotaSonido.play();
                 iter.remove();
             }
@@ -142,9 +161,9 @@ public class SimpleGame extends ApplicationAdapter {
     }
 
     /*Método de genearción de gotas de lluvia*/
-    private void generGotaLluvia(){
+    private void generGotaLluvia() {
         Rectangle rectanguloGota = new Rectangle();
-        rectanguloGota.x = MathUtils.random(0,800-64);
+        rectanguloGota.x = MathUtils.random(0, 800 - 64);
         rectanguloGota.y = 480;
         rectanguloGota.width = 64;
         rectanguloGota.height = 64;
