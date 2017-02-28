@@ -20,26 +20,28 @@ import java.util.Iterator;
 
 public class SimpleGame extends ApplicationAdapter {
 
-    private Texture gotaImagen, cuboImagen;
-    private Sound gotaSonido; //Sonidos de menos de 10 segundos
+    private Texture gotaImagen, gremlinBuenoImagen;
+    private Music gameOverSound; //Sonidos de menos de 10 segundos
     private Music lluviaSonido;//Resto de sonidos
     private OrthographicCamera camera;
     private SpriteBatch batch;
     private Rectangle rectanguloCubo; //Almacenamiento de posición y tamaño.
     private Array<Rectangle> rectangulosGotasLluvia;//Almacena los rectangulos de cada una de las gotas generadas.
     private long tiempoDesdeUltimaGota;
-    private int marcador;
-    private String textoMarcador;
-    private BitmapFont tipoLetraMarcador;
+    private String textoGameOver;
+    private boolean fin;
+
+    private BitmapFont tipoLetraGameOver;
 
     @Override
     public void create() {
         //Cargamos las imagenes de la gota y el cubo, 64x64 pixels cada una
         gotaImagen = new Texture(Gdx.files.internal("gota.png"));
-        cuboImagen = new Texture(Gdx.files.internal("cubo.png"));
+        gremlinBuenoImagen = new Texture(Gdx.files.internal("gremlinBueno.png"));
 
         //Cargamos los efectos de sonido de la lluvia y la gota.
-        gotaSonido = Gdx.audio.newSound(Gdx.files.internal("gota.wav"));
+        gameOverSound = Gdx.audio.newMusic(Gdx.files.internal("GameOver.mp3"));
+
         lluviaSonido = Gdx.audio.newMusic(Gdx.files.internal("lluvia.mp3"));
 
         //Arrancamos el sonido de la lluvia(lo primero al cargar el juego)
@@ -64,15 +66,18 @@ public class SimpleGame extends ApplicationAdapter {
         rectangulosGotasLluvia = new Array<Rectangle>();
         generGotaLluvia();
 
-        //Inicializamos el marcador
-        marcador = 0;
-        textoMarcador = "Marcador: 0";
-        tipoLetraMarcador = new BitmapFont();
+        //Inicializamos el texto GAME OVER a vacio
+        textoGameOver = "";
+        tipoLetraGameOver = new BitmapFont(Gdx.files.internal("fonts/Thirteen-Pixel-Fonts.fnt"),
+                Gdx.files.internal("fonts/Thirteen-Pixel-Fonts_0.png"), false);
+
+        //Usamos este variable para parar el movimineto de las gotas.
+        fin = false;
     }
 
     @Override
     public void render() {
-        Gdx.gl.glClearColor(1, 0, 0, 1);
+        Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         //Limpiamos la matriz de posicionado de la cámara.(no es necesario en este
@@ -83,11 +88,13 @@ public class SimpleGame extends ApplicationAdapter {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         //Añadimos el marcador
-        tipoLetraMarcador.setColor(1.0f, 1.0f, 1.0f, 1.0f);
-        tipoLetraMarcador.draw(batch, textoMarcador, 10, 450);
-        batch.draw(cuboImagen, rectanguloCubo.x, rectanguloCubo.y);
-        for (Rectangle rectanguloGota : rectangulosGotasLluvia) {
-            batch.draw(gotaImagen, rectanguloGota.x, rectanguloGota.y);
+        tipoLetraGameOver.setColor(0.0f, 0.0f, 0.0f, 1.0f);
+        tipoLetraGameOver.draw(batch, textoGameOver, 150, 250);
+        batch.draw(gremlinBuenoImagen, rectanguloCubo.x, rectanguloCubo.y);
+        if (!fin) {
+            for (Rectangle rectanguloGota : rectangulosGotasLluvia) {
+                batch.draw(gotaImagen, rectanguloGota.x, rectanguloGota.y);
+            }
         }
         batch.end();
 
@@ -143,18 +150,17 @@ public class SimpleGame extends ApplicationAdapter {
             //Cuando la gota desaparece por abajo la borramos.
             if (rectanguloGotaLluvia.y + 64 < 0) {
                 iter.remove();
-                if (marcador > 0) {
-                    marcador--;
-                    textoMarcador = "Marcador: " + marcador;
-                }
             }
-            //Hay que poner un sonido a cuando la gota choca con el cubo y borrar la gota
+            //Hay que poner un sonido a cuando la gota choca con el gremlin y borrar la gota y mostrar el mensaje
             //Lo que comprobamos es si los rectangulos se superponen
             if (rectanguloGotaLluvia.overlaps(rectanguloCubo)) {
-                marcador++;
-                textoMarcador = "Marcador: " + marcador;
-                gotaSonido.play();
-                iter.remove();
+                textoGameOver = "GAME OVER";
+                if (!fin) {
+                    gameOverSound.play();
+                    lluviaSonido.stop();
+                    iter.remove();
+                }
+                fin = true;
             }
         }
 
@@ -175,8 +181,8 @@ public class SimpleGame extends ApplicationAdapter {
     public void dispose() {
         super.dispose();
         gotaImagen.dispose();
-        cuboImagen.dispose();
-        gotaSonido.dispose();
+        gremlinBuenoImagen.dispose();
+        gameOverSound.dispose();
         lluviaSonido.dispose();
         batch.dispose();
     }
