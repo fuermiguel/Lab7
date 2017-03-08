@@ -1,15 +1,17 @@
-package com.miguel.gdx.simplegame;
+package com.miguel.gdx.simplegame.pantallas;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.miguel.gdx.simplegame.Juego;
 
 /**
  * Created by fuerm on 01/03/2017.
  */
 
 public class MenuPrincipal implements Screen {
+    //hgsdkfg
 
     final Juego juego;
     OrthographicCamera camera;

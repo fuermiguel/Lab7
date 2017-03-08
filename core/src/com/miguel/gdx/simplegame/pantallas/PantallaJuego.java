@@ -1,4 +1,4 @@
-package com.miguel.gdx.simplegame;
+package com.miguel.gdx.simplegame.pantallas;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.miguel.gdx.simplegame.Juego;
 
 import java.util.Iterator;
 

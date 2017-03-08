@@ -21,7 +21,7 @@ public class Juego extends Game {
         font = new BitmapFont();
 
         //Asignamos la pantalla actual.
-        this.setScreen(new MenuPrincipal(this));
+        this.setScreen(new com.miguel.gdx.simplegame.pantallas.MenuPrincipal(this));
     }
     public void render(){
         super.render();
